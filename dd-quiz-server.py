@@ -2,6 +2,8 @@ from flask import Flask,jsonify, render_template, request, Response, json, redir
 from flask_sqlalchemy import SQLAlchemy
 from flask.helpers import flash
 import os
+# import numpy as np
+import random
 
 
 app = Flask(__name__)
@@ -30,6 +32,36 @@ def getSampleJson():
         }]
     }
     return retVal
+
+@app.route("/quiz",methods=['POST'])
+def getAllQuiz():
+    reqData=request.get_json()
+    count=reqData["num"]
+    maxNum=4
+    # quizNumList=np.random.randint(1,maxNum+1,size=count)
+    quizNumList=random.sample(range(1,maxNum+1),count)
+    quizList=[]
+    for i in quizNumList:
+        print ("i in quizNumList is " + str(i))
+        quizList.append(getQuiz(i))
+    #for test
+    # for i in range(len(quizList)):
+    #     print(quizList[i]['id'])
+
+    return json.dumps(quizList)
+
+def getRandomNum(count):
+    retList=[]
+    for i in range(count):
+        retList.append()
+
+
+def getQuiz(quizid):
+    db=SQLAlchemy(app)
+    Quiz=db.session.execute('select * from quiztable where id=' + str(quizid) ).fetchall()
+    quizJson={"id":Quiz[0]['id'],'question':Quiz[0]['question'],'answers':Quiz[0]['answers'],'right':Quiz[0]['right'],'category':Quiz[0]['category']}
+
+    return quizJson
 
 if __name__ == "__main__":
   port = int(os.getenv("PORT", 8080))
